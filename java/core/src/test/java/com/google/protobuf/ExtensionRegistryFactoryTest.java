@@ -53,6 +53,7 @@ import junit.framework.TestSuite;
  * <p>The test mechanism employed here is based on the pattern in
  * {@code com.google.common.util.concurrent.AbstractFutureFallbackAtomicHelperTest}
  */
+
 public class ExtensionRegistryFactoryTest extends TestCase {
 
   // A classloader which blacklists some non-Lite classes.

@@ -627,6 +627,9 @@ public abstract class CodedInputStream {
     private int lastTag;
     private boolean enableAliasing;
 
+    private static final String OUTPUT_METRICS_KEY = "predictCallOutput";
+    private final MetricsCollector _metricsCollector = MetricsCollector.getMetricsCollectorInstance();
+
     /** The absolute position of the end of the current message. */
     private int currentLimit = Integer.MAX_VALUE;
 
@@ -914,6 +917,8 @@ public abstract class CodedInputStream {
     @Override
     public <T extends MessageLite> T readMessage(
         final Parser<T> parser, final ExtensionRegistryLite extensionRegistry) throws IOException {
+      _metricsCollector.createNewHistogramIfNotPresent(OUTPUT_METRICS_KEY, false);
+      long startTime = System.nanoTime();
       int length = readRawVarint32();
       if (recursionDepth >= recursionLimit) {
         throw InvalidProtocolBufferException.recursionLimitExceeded();
@@ -924,6 +929,7 @@ public abstract class CodedInputStream {
       checkLastTagWas(0);
       --recursionDepth;
       popLimit(oldLimit);
+      _metricsCollector.reportLatency(OUTPUT_METRICS_KEY, System.nanoTime() - startTime);
       return result;
     }
 

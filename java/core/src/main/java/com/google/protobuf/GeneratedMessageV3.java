@@ -85,6 +85,8 @@ public abstract class GeneratedMessageV3 extends AbstractMessage
   /** For use by generated code only.  */
   protected UnknownFieldSet unknownFields;
 
+  private static final MetricsCollector _metricsCollector = MetricsCollector.getMetricsCollectorInstance();
+
   protected GeneratedMessageV3() {
     unknownFields = UnknownFieldSet.getDefaultInstance();
   }
@@ -358,7 +360,7 @@ public abstract class GeneratedMessageV3 extends AbstractMessage
       throw e.unwrapIOException();
     }
   }
-  
+
   protected static boolean canUseUnsafe() {
     return UnsafeUtil.hasUnsafeArrayOperations() && UnsafeUtil.hasUnsafeByteBufferOperations();
   }
@@ -2850,11 +2852,14 @@ public abstract class GeneratedMessageV3 extends AbstractMessage
       int fieldNumber)
       throws IOException {
     for (Map.Entry<K, V> entry : m.entrySet()) {
+      _metricsCollector.createNewHistogramIfNotPresent(entry.getKey().toString(), true);
+      long startTime = System.nanoTime();
       out.writeMessage(fieldNumber,
           defaultEntry.newBuilderForType()
               .setKey(entry.getKey())
               .setValue(entry.getValue())
               .build());
+      _metricsCollector.reportLatency(entry.getKey().toString(), System.nanoTime() - startTime);
     }
   }
 }
